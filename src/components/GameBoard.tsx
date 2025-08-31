@@ -83,7 +83,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
       >
         {/* Game Over Overlay */}
         {gameStatus === 'gameOver' && (
-          <div className="absolute inset-0 bg-red-600 bg-opacity-90 flex items-center justify-center z-[999] rounded-xl">
+          <div className="absolute inset-0 bg-red-600 dark:bg-red-800 bg-opacity-90 flex items-center justify-center z-[999] rounded-xl">
             <div className="text-center text-white">
               <h2 className="text-4xl font-bold mb-2">GAME OVER</h2>
               <p className="text-xl">
@@ -95,7 +95,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
 
         {/* Pause Overlay */}
         {gameStatus === 'paused' && (
-          <div className="absolute inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-40 rounded-xl">
+          <div className="absolute inset-0 bg-gray-800 dark:bg-gray-900 bg-opacity-75 flex items-center justify-center z-40 rounded-xl">
             <div className="text-center text-white">
               <h2 className="text-3xl font-bold mb-2">
                 {language === 'ar' ? 'مُوقف مؤقتاً' : 'PAUSED'}
@@ -106,7 +106,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
 
         {/* Game Grid */}
         <div
-          className="relative bg-gradient-to-b from-blue-50 to-blue-100 border-blue-300 rounded-xl overflow-hidden"
+          className="relative bg-gradient-to-b from-blue-50 to-blue-100 dark:from-gray-700 dark:to-gray-800 border-blue-300 dark:border-gray-600 rounded-xl overflow-hidden"
           style={{
             width: `${8 * 60}px`, // 8 columns with larger size to fill same space as 10x48
             height: `${gridRows * 56}px`,
@@ -114,20 +114,20 @@ export const GameBoard: React.FC<GameBoardProps> = ({
           onClick={handleBoardClick}
         >
           {/* Score Display in Top Left Corner */}
-          <div className="absolute top-2 left-2 z-10 bg-white bg-opacity-80 px-3 py-1 rounded-lg shadow-md">
-            <span className="font-bold text-lg text-purple-600">{score.toLocaleString()}</span>
+          <div className="absolute top-2 left-2 z-10 bg-white dark:bg-gray-800 bg-opacity-80 px-3 py-1 rounded-lg shadow-md">
+            <span className="font-bold text-lg text-purple-600 dark:text-purple-400">{score.toLocaleString()}</span>
           </div>
 
           {/* Selected Letters Display in Top Center */}
           {selectedBlocks.length > 0 && (
-            <div className="absolute top-2 left-1/2 transform -translate-x-1/2 z-10 bg-white bg-opacity-80 px-3 py-1 rounded-lg shadow-md">
+            <div className="absolute top-2 left-1/2 transform -translate-x-1/2 z-10 bg-white dark:bg-gray-800 bg-opacity-80 px-3 py-1 rounded-lg shadow-md">
               <div className="flex items-center space-x-1">
-                <span className="font-semibold text-gray-700 text-sm">
+                <span className="font-semibold text-gray-700 dark:text-gray-200 text-sm">
                   {language === 'ar' ? 'الحروف:' : 'Letters:'}
                 </span>
                 <div className="flex space-x-1">
                   {selectedBlocks.map((block, index) => (
-                    <span key={block.id} className="bg-yellow-100 text-yellow-800 px-1 py-0.5 rounded font-bold text-sm">
+                    <span key={block.id} className="bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-200 px-1 py-0.5 rounded font-bold text-sm">
                       {block.letter}
                       {index < selectedBlocks.length - 1 && '-'}
                     </span>

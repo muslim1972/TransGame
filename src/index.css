@@ -4,6 +4,15 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  html {
+    @apply bg-gradient-to-r from-blue-100 via-blue-50 to-white text-gray-800;
+  }
+  html.dark {
+    @apply bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-gray-100;
+  }
+}
+
 /* Arabic Font Support */
 .font-arabic {
   font-family: 'Cairo', sans-serif;

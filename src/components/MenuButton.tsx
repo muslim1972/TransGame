@@ -70,10 +70,10 @@ export const MenuButton: React.FC<MenuButtonProps> = ({
         </button>
 
         {isOpen && (
-          <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+          <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 dark:border dark:border-gray-700 rounded-md shadow-lg py-1 z-10">
             <button
               onClick={handleToggleDarkMode}
-              className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              className="flex items-center w-full px-4 py-2 text-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
             >
               {isDarkMode ? (
                 <Sun className="w-4 h-4 mr-2" />
@@ -87,14 +87,14 @@ export const MenuButton: React.FC<MenuButtonProps> = ({
             </button>
             <button
               onClick={handleShowGameSpeed}
-              className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              className="flex items-center w-full px-4 py-2 text-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
             >
               <Gauge className="w-4 h-4 mr-2" />
               {language === 'ar' ? 'سرعة اللعبة' : 'Game Speed'}
             </button>
             <button
               onClick={handleShowHowToPlay}
-              className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              className="flex items-center w-full px-4 py-2 text-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
             >
               <HelpCircle className="w-4 h-4 mr-2" />
               {language === 'ar' ? 'كيفية اللعب' : 'How to Play'}
@@ -106,10 +106,10 @@ export const MenuButton: React.FC<MenuButtonProps> = ({
       {/* Game Speed Modal */}
       {showGameSpeed && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold text-gray-800">
+                <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200">
                   {language === 'ar' ? 'سرعة اللعبة' : 'Game Speed'}
                 </h2>
                 <button 
@@ -120,7 +120,7 @@ export const MenuButton: React.FC<MenuButtonProps> = ({
                 </button>
               </div>
 
-              <div className="space-y-4 text-gray-600">
+              <div className="space-y-4 text-gray-600 dark:text-gray-300">
                 <p>
                   {language === 'ar' 
                     ? 'اختر سرعة اللعبة التي تناسبك. السرعة الحالية:'
@@ -147,7 +147,7 @@ export const MenuButton: React.FC<MenuButtonProps> = ({
                           py-2 px-1 text-xs font-semibold rounded transition-all duration-200
                           ${speedInSeconds === speed
                             ? 'bg-indigo-500 text-white shadow-lg'
-                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                            : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'
                           }
                         `}
                       >
@@ -160,7 +160,7 @@ export const MenuButton: React.FC<MenuButtonProps> = ({
                 <div className="pt-4">
                   <button
                     onClick={closeGameSpeed}
-                    className="w-full py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors duration-200"
+                    className="w-full py-2 px-4 bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-lg transition-colors duration-200"
                   >
                     {language === 'ar' ? 'حفظ' : 'Save'}
                   </button>
@@ -174,10 +174,10 @@ export const MenuButton: React.FC<MenuButtonProps> = ({
       {/* How to Play Modal */}
       {showHowToPlay && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold text-gray-800">
+                <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200">
                   {language === 'ar' ? 'كيفية اللعب' : 'How to Play'}
                 </h2>
                 <button 
@@ -188,7 +188,7 @@ export const MenuButton: React.FC<MenuButtonProps> = ({
                 </button>
               </div>
 
-              <div className="space-y-4 text-gray-600">
+              <div className="space-y-4 text-gray-600 dark:text-gray-300">
                 <p>
                   {language === 'ar' 
                     ? 'مرحباً بك في لعبة القاموس التعليمية! الهدف من اللعبة هو اكتشاف الكلمات المخفية في الشبكة وتجميع النقاط.'
@@ -196,7 +196,7 @@ export const MenuButton: React.FC<MenuButtonProps> = ({
                   }
                 </p>
 
-                <h3 className="font-semibold text-gray-800">
+                <h3 className="font-semibold text-gray-800 dark:text-gray-200">
                   {language === 'ar' ? 'قواعد اللعبة:' : 'Game Rules:'}
                 </h3>
                 <ul className="list-disc pl-5 space-y-2">
@@ -226,7 +226,7 @@ export const MenuButton: React.FC<MenuButtonProps> = ({
                   </li>
                 </ul>
 
-                <h3 className="font-semibold text-gray-800">
+                <h3 className="font-semibold text-gray-800 dark:text-gray-200">
                   {language === 'ar' ? 'الأدوات المساعدة:' : 'Power-ups:'}
                 </h3>
                 <ul className="list-disc pl-5 space-y-2">
@@ -262,7 +262,7 @@ export const MenuButton: React.FC<MenuButtonProps> = ({
                 <div className="pt-4">
                   <button
                     onClick={closeHowToPlay}
-                    className="w-full py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors duration-200"
+                    className="w-full py-2 px-4 bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-lg transition-colors duration-200"
                   >
                     {language === 'ar' ? 'بدء اللعب' : 'Start Playing'}
                   </button>
