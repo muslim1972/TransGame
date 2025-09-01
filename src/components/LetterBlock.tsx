@@ -21,7 +21,7 @@ export const LetterBlock: React.FC<LetterBlockProps> = ({
   return (
     <div
       className={`
-        w-14 h-14 border-2 rounded-lg cursor-pointer
+        w-12 h-12 border-2 rounded-lg cursor-pointer
         flex items-center justify-center font-bold text-4xl
         absolute
         ${block.isMonsterHere
@@ -38,8 +38,8 @@ export const LetterBlock: React.FC<LetterBlockProps> = ({
       `}
       onClick={handleClick}
       style={{
-        left: `${block.col * 60 - 1}px`,
-        top: `${block.row * 56}px`,
+        left: `${block.col * 50}px`,
+        top: `${block.row * 50}px`,
         transition: 'top 0.5s ease-in-out',
         zIndex: block.row * 10 + block.col,
       }}

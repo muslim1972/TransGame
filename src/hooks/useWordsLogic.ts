@@ -1,34 +1,21 @@
 import { useCallback } from 'react';
-import { findWord, Word, ValidateWordRequest, ValidateWordResponse } from '../data/words1';
-import { GameState, TargetWord } from '../types/game';
+import { findWord } from '../utils/words';
+import { GameState, TargetWord, WordDefinition } from '../types/game';
 
 export const useWordsLogic = (
   gameState: GameState,
-  setGameState: React.Dispatch<React.SetStateAction<GameState>>
+  setGameState: React.Dispatch<React.SetStateAction<GameState>>,
+  dictionary: WordDefinition[]
 ) => {
-  const validateWord = useCallback((request: ValidateWordRequest): ValidateWordResponse => {
-    const { word, isArabicMode } = request;
-
-    // Find the word in the dictionary
-    const foundWord = findWord(word.split(''), isArabicMode);
-
-    if (foundWord) {
-      return {
-        isValid: true,
-        meaning: isArabicMode ? foundWord.english : foundWord.arabic
-      };
-    }
-
-    return {
-      isValid: false
-    };
-  }, []);
 
   const checkSelectedWord = useCallback((selectedLetters: string[]) => {
-    const foundWordDef = findWord(selectedLetters, gameState.language === 'arabic');
+    const foundWordDef = findWord(selectedLetters, gameState.language === 'arabic', dictionary);
 
     if (foundWordDef) {
-      const isAlreadyFound = gameState.foundWords.some(fw => fw.word === foundWordDef.english);
+      const isAlreadyFound = gameState.foundWords.some(fw => 
+        (gameState.language === 'english' && fw.word === foundWordDef.english) ||
+        (gameState.language === 'arabic' && fw.meaning === foundWordDef.english)
+      );
 
       if (!isAlreadyFound) {
         const points = selectedLetters.length * 100; // POINTS_PER_LETTER
@@ -63,50 +50,20 @@ export const useWordsLogic = (
     return {
       isValid: false
     };
-  }, [gameState.language, gameState.foundWords, gameState.targetWords]);
+  }, [gameState.language, gameState.foundWords, gameState.targetWords, dictionary]);
 
   const addFoundWord = useCallback((newFoundWord: any, updatedTargetWords: TargetWord[], points: number) => {
     setGameState(prevState => {
-      // Find the index of the word that was just found
-      const foundWordIndex = updatedTargetWords.findIndex(target => 
-        (prevState.language === 'english' && target.word === newFoundWord.meaning) ||
-        (prevState.language === 'arabic' && target.word === newFoundWord.meaning)
-      );
-
-      // Reorganize the target words array
-      let reorganizedTargetWords = [...updatedTargetWords];
-
-      if (foundWordIndex !== -1) {
-        // Move the found word to the second position (index 1)
-        const foundWord = reorganizedTargetWords[foundWordIndex];
-        reorganizedTargetWords.splice(foundWordIndex, 1);
-        reorganizedTargetWords.splice(1, 0, foundWord);
-
-        // Find a non-found word to put at the top
-        const nonFoundWordIndex = reorganizedTargetWords.findIndex((word, index) => 
-          index !== 1 && !word.found
-        );
-
-        if (nonFoundWordIndex !== -1) {
-          // Move the non-found word to the first position
-          const nonFoundWord = reorganizedTargetWords[nonFoundWordIndex];
-          reorganizedTargetWords.splice(nonFoundWordIndex, 1);
-          reorganizedTargetWords.unshift(nonFoundWord);
-        }
-
-        // Check if all words have been found (game won)
-        const allWordsFound = reorganizedTargetWords.every(word => word.found);
-        if (allWordsFound) {
-          // Game won - add bonus points and update game status
-          return {
-            ...prevState,
-            selectedBlocks: [],
-            score: prevState.score + points + 2000, // Add 2000 bonus points
-            foundWords: [newFoundWord, ...prevState.foundWords].slice(0, 10),
-            targetWords: reorganizedTargetWords,
-            gameStatus: 'gameOver', // End the game
-          };
-        }
+      const allWordsFound = updatedTargetWords.every(word => word.found);
+      if (allWordsFound) {
+        return {
+          ...prevState,
+          selectedBlocks: [],
+          score: prevState.score + points + 2000, // Add 2000 bonus points
+          foundWords: [newFoundWord, ...prevState.foundWords].slice(0, 10),
+          targetWords: updatedTargetWords,
+          gameStatus: 'gameOver', // End the game
+        };
       }
 
       return {
@@ -114,13 +71,12 @@ export const useWordsLogic = (
         selectedBlocks: [],
         score: prevState.score + points,
         foundWords: [newFoundWord, ...prevState.foundWords].slice(0, 10),
-        targetWords: reorganizedTargetWords,
+        targetWords: updatedTargetWords,
       };
     });
   }, [setGameState]);
 
   return {
-    validateWord,
     checkSelectedWord,
     addFoundWord
   };

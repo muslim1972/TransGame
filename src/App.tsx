@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import { GameBoard } from './components/GameBoard';
-import { Sidebar } from './components/Sidebar';
 import { TargetWords } from './components/TargetWords';
 import { useGameLogic } from './hooks/useGameLogic';
-import { BookOpen, Shuffle, Bomb, RotateCcw, Languages, Trophy } from 'lucide-react';
-import { Pause, Play } from 'lucide-react'; // Explicitly import Pause and Play to resolve potential issues
+import { Shuffle, Bomb, RotateCcw, Languages } from 'lucide-react';
+import { Pause, Play } from 'lucide-react';
 import { MenuButton } from './components/MenuButton';
+import { AddWordDialog } from './components/AddWordDialog';
+import { dictionary as initialDictionary } from './data/words';
+import { WordDefinition } from './types/game';
 
 function App() {
+  const [dictionary, setDictionary] = useState<WordDefinition[]>(initialDictionary);
   const {
     gameState,
     selectBlock,
@@ -24,11 +27,11 @@ function App() {
     GRID_COLS,
     activateMonster,
     isMonsterReady,
-  } = useGameLogic();
+  } = useGameLogic(dictionary);
 
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isAddWordDialogOpen, setAddWordDialogOpen] = useState(false);
 
-  // Check for system dark mode preference on initial load
   React.useEffect(() => {
     const prefersDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
     if (prefersDarkMode) {
@@ -40,8 +43,6 @@ function App() {
   const toggleDarkMode = () => {
     const newDarkMode = !isDarkMode;
     setIsDarkMode(newDarkMode);
-
-    // Add or remove 'dark' class from the html element
     if (newDarkMode) {
       document.documentElement.classList.add('dark');
     } else {
@@ -49,9 +50,35 @@ function App() {
     }
   };
 
+  const handleOpenAddWordDialog = () => {
+    if (gameState.gameStatus === 'playing') {
+        togglePause();
+    }
+    setAddWordDialogOpen(true);
+  };
+
+  const handleCloseAddWordDialog = () => {
+    if (gameState.gameStatus === 'paused') {
+        togglePause();
+    }
+    setAddWordDialogOpen(false);
+  };
+
+  const handleAddWord = (newWord: WordDefinition) => {
+    setDictionary(prevDict => [...prevDict, newWord]);
+    // The dialog will also send the word to Google Forms
+  };
+
   return (
     <div className={`min-h-screen w-full ${isDarkMode ? 'text-gray-100' : 'text-gray-800'}`}>
-      {/* Floating Menu Button */}
+        <AddWordDialog 
+            isOpen={isAddWordDialogOpen}
+            onClose={handleCloseAddWordDialog}
+            onAddWord={handleAddWord}
+            dictionary={dictionary}
+            language={gameState.language}
+        />
+
       <div className="fixed top-4 right-4 z-[9999]">
         <MenuButton 
           onToggleDarkMode={toggleDarkMode}
@@ -59,17 +86,15 @@ function App() {
           language={gameState.language}
           gameSpeed={gameState.gameSpeed}
           onChangeSpeed={changeGameSpeed}
+          onAddWordClick={handleOpenAddWordDialog}
         />
       </div>
 
-      {/* Main Game Area */}
       <main className="mx-auto px-6 py-8 w-full">
         <div className="flex flex-col lg:flex-row justify-center items-start lg:space-x-8 space-y-8 lg:space-y-0">
 
-          {/* Game Board with Controls */}
           <div className="flex flex-col items-center">
 
-            {/* Game Board */}
             <div className="flex-shrink-0">
               <GameBoard
                 blocks={gameState.blocks}
@@ -85,9 +110,7 @@ function App() {
                 selectedBlocks={gameState.selectedBlocks}
               />
 
-              {/* Game Controls - Moved Below Game Board */}
               <div className="flex space-x-1 mt-2 justify-center">
-                {/* Pause/Play Button */}
                 <button
                   onClick={togglePause}
                   disabled={gameState.gameStatus === 'gameOver'}
@@ -111,7 +134,6 @@ function App() {
                   </span>
                 </button>
 
-                {/* Reset Button */}
                 <button
                   onClick={resetGame}
                   data-reset-button="true"
@@ -123,7 +145,6 @@ function App() {
                   </span>
                 </button>
 
-                {/* Language Switch Button */}
                 <button
                   onClick={switchLanguage}
                   className="w-14 h-14 flex flex-col items-center justify-center p-1 bg-indigo-500 hover:bg-indigo-600 dark:bg-indigo-600 dark:hover:bg-indigo-700 text-white rounded-xl font-semibold text-xs transition-all duration-200 shadow-lg"
@@ -134,7 +155,6 @@ function App() {
                   </span>
                 </button>
 
-                {/* Replace Half Letters Button */}
                 <button
                   onClick={replaceHalfLetters}
                   data-replace-button="true"
@@ -146,7 +166,6 @@ function App() {
                   </span>
                 </button>
 
-                {/* Bomb Button */}
                 <button
                   onClick={activateBomb}
                   disabled={!isBombReady}
@@ -161,7 +180,6 @@ function App() {
                   </span>
                 </button>
 
-                {/* Monster Button */}
                 <button
                   onClick={activateMonster}
                   disabled={!isMonsterReady}
@@ -178,9 +196,7 @@ function App() {
             </div>
           </div>
 
-          {/* Words Sections */}
-          <div className="flex flex-row gap-2" style={{ width: '480px' }}>
-            {/* Target Words */}
+          <div className="flex flex-row gap-2 w-full lg:w-[480px]">
             {gameState.targetWords && (
               <div className="w-2/3">
                 <TargetWords
@@ -191,7 +207,6 @@ function App() {
               </div>
             )}
 
-            {/* Found Words */}
             {gameState.foundWords.length > 0 && (
               <div className="w-1/3">
             <div className="flex flex-col gap-2">
@@ -214,7 +229,6 @@ function App() {
           </div>
         </div>
 
-        {/* Selected Letters Display - Moved to GameBoard component */}
       </main>
     </div>
   );

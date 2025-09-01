@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { Menu, Moon, Sun, HelpCircle, Gauge } from 'lucide-react'; // Using lucide-react for the menu icon
+import { Menu, Moon, Sun, HelpCircle, Gauge, Plus } from 'lucide-react'; // Using lucide-react for the menu icon
 
 interface MenuButtonProps {
-  // Props for dark mode toggle and how-to-play
   onToggleDarkMode?: () => void;
   isDarkMode?: boolean;
   language?: 'en' | 'ar';
   gameSpeed?: number;
   onChangeSpeed?: (speed: number) => void;
+  onAddWordClick?: () => void;
 }
 
 export const MenuButton: React.FC<MenuButtonProps> = ({ 
@@ -15,7 +15,8 @@ export const MenuButton: React.FC<MenuButtonProps> = ({
   isDarkMode = false,
   language = 'en',
   gameSpeed = 5,
-  onChangeSpeed
+  onChangeSpeed,
+  onAddWordClick
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showHowToPlay, setShowHowToPlay] = useState(false);
@@ -42,6 +43,13 @@ export const MenuButton: React.FC<MenuButtonProps> = ({
 
   const handleShowGameSpeed = () => {
     setShowGameSpeed(true);
+    setIsOpen(false);
+  };
+
+  const handleAddWordClick = () => {
+    if (onAddWordClick) {
+      onAddWordClick();
+    }
     setIsOpen(false);
   };
 
@@ -98,6 +106,13 @@ export const MenuButton: React.FC<MenuButtonProps> = ({
             >
               <HelpCircle className="w-4 h-4 mr-2" />
               {language === 'ar' ? 'كيفية اللعب' : 'How to Play'}
+            </button>
+            <button
+              onClick={handleAddWordClick}
+              className="flex items-center w-full px-4 py-2 text-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              {language === 'ar' ? 'إضافة كلمة' : 'Add Word'}
             </button>
           </div>
         )}

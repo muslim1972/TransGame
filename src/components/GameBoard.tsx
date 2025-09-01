@@ -57,11 +57,8 @@ export const GameBoard: React.FC<GameBoardProps> = ({
   };
 
   const handleSwipeRight = () => {
-    // Reset game on swipe right
-    const resetButton = document.querySelector('[data-reset-button]') as HTMLButtonElement;
-    if (resetButton) {
-      resetButton.click();
-    }
+    // Clear selection on swipe right
+    onClearSelection();
   };
 
   const handleTap = () => {
@@ -108,8 +105,8 @@ export const GameBoard: React.FC<GameBoardProps> = ({
         <div
           className="relative bg-gradient-to-b from-blue-50 to-blue-100 dark:from-gray-700 dark:to-gray-800 border-blue-300 dark:border-gray-600 rounded-xl overflow-hidden"
           style={{
-            width: `${8 * 60}px`, // 8 columns with larger size to fill same space as 10x48
-            height: `${gridRows * 56}px`,
+            width: `${8 * 50}px`,
+            height: `${gridRows * 50}px`,
           }}
           onClick={handleBoardClick}
         >
@@ -120,7 +117,10 @@ export const GameBoard: React.FC<GameBoardProps> = ({
 
           {/* Selected Letters Display in Top Center */}
           {selectedBlocks.length > 0 && (
-            <div className="absolute top-2 left-1/2 transform -translate-x-1/2 z-10 bg-white dark:bg-gray-800 bg-opacity-80 px-3 py-1 rounded-lg shadow-md">
+            <div 
+              className="absolute top-2 left-1/2 transform -translate-x-1/2 z-10 bg-white dark:bg-gray-800 bg-opacity-80 px-3 py-1 rounded-lg shadow-md cursor-pointer"
+              onClick={onClearSelection}
+            >
               <div className="flex items-center space-x-1">
                 <span className="font-semibold text-gray-700 dark:text-gray-200 text-sm">
                   {language === 'ar' ? 'الحروف:' : 'Letters:'}

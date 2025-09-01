@@ -1,98 +1,104 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { GameState, LetterBlock, TargetWord } from '../types/game';
+import { GameState, LetterBlock, TargetWord, WordDefinition } from '../types/game';
 import { useGameState } from './game/useGameState';
 import { useBlocksLogic } from './useBlocksLogic';
 import { useWordsLogic } from './useWordsLogic';
 import { useTimerLogic } from './useTimerLogic';
-import { useGameControls } from './useGameControls';
 import { useVisualEffects } from './useVisualEffects';
 import { useSoundManager } from './useSoundManager';
 import { useAchievements } from './useAchievements';
-import { useBombLogic } from '././useBombLogic';
+import { useBombLogic } from './useBombLogic';
 import { useMonsterLogic } from './useMonsterLogic';
 import { generateRow } from '../utils/grid';
+import { getRandomWords } from '../utils/words';
 
-export const useGameLogic = () => {
-  const { gameState, setGameState, updateGameState, generateTargetWords, resetGameState, switchLanguage, GRID_ROWS, GRID_COLS } = useGameState();
+const TARGET_WORD_COUNT = 7;
 
-  // Use the sound manager hook
-  const {
-    playSound,
-    toggleMute,
-    isMuted
-  } = useSoundManager();
+export const useGameLogic = (dictionary: WordDefinition[]) => {
+  const { gameState, setGameState, updateGameState, resetCoreGameState, switchLanguage: switchLanguageInState, GRID_ROWS, GRID_COLS } = useGameState();
 
+  const { playSound, toggleMute, isMuted } = useSoundManager();
   const { isBombReady, deactivateBombState, resetBombState } = useBombLogic(gameState.rowCount);
-
-  // Use the monster logic hook
   const { isMonsterReady, activateMonster, resetMonsterState, monsterBlockId, monsterActive, blockToRemove } = useMonsterLogic(gameState.blocks, GRID_ROWS, GRID_COLS, playSound);
+  const { applyGravity, replaceHalfLetters, activateBomb } = useBlocksLogic(gameState, setGameState, GRID_ROWS, GRID_COLS, playSound, isBombReady, deactivateBombState);
+  const { checkSelectedWord, addFoundWord } = useWordsLogic(gameState, setGameState, dictionary);
+  const { changeGameSpeed, moveBlocksDown } = useTimerLogic(gameState, setGameState, GRID_ROWS, GRID_COLS, playSound, monsterActive);
+  const { showHint, animateBlockMatch, animationProgress } = useVisualEffects(gameState, setGameState);
+  const { checkAchievements, trackLanguageSwitch, checkLevelUp, calculateBonusPoints, getAchievements, getUnlockedAchievements, getLockedAchievements, getAchievementProgress } = useAchievements(gameState, setGameState);
 
-  // Use the blocks logic hook
-  const {
-    applyGravity,
-    replaceHalfLetters,
-    activateBomb,
-  } = useBlocksLogic(gameState, setGameState, GRID_ROWS, GRID_COLS, playSound, isBombReady, deactivateBombState);
+  const generateAndSetTargetWords = useCallback((lang: 'english' | 'arabic') => {
+    const words = getRandomWords(TARGET_WORD_COUNT, dictionary);
+    const targetWords: TargetWord[] = words.map(w => ({
+      word: lang === 'english' ? w.arabic : w.english,
+      meaning: lang === 'english' ? w.english : w.arabic,
+      found: false,
+    }));
+    updateGameState({ targetWords });
+  }, [dictionary, updateGameState]);
 
-  // Use the words logic hook
-  const {
-    checkSelectedWord,
-    addFoundWord,
-  } = useWordsLogic(gameState, setGameState);
+  const resetGame = useCallback(() => {
+    resetCoreGameState();
+    resetBombState();
+    resetMonsterState();
+    generateAndSetTargetWords(gameState.language);
+    playSound('click');
 
-  // Use the timer logic hook
-  const {
-    changeGameSpeed,
-    moveBlocksDown
-  } = useTimerLogic(gameState, setGameState, GRID_ROWS, GRID_COLS, playSound, monsterActive);
+    const initialRow = generateRow(GRID_ROWS - 1, gameState.language, GRID_COLS);
+    setGameState(prevState => ({
+      ...prevState,
+      blocks: initialRow,
+      rowCount: 1,
+    }));
+  }, [resetCoreGameState, resetBombState, resetMonsterState, generateAndSetTargetWords, gameState.language, playSound, setGameState, GRID_ROWS, GRID_COLS]);
 
-  // Use the game controls hook
-  const {
-    resetGame,
-    handleSwitchLanguage,
-    clearSelection,
-    togglePause
-  } = useGameControls(
-    gameState, 
-    setGameState, 
-    resetGameState, 
-    switchLanguage, 
-    generateTargetWords, 
-    generateRow, 
-    GRID_ROWS, 
-    GRID_COLS,
-    playSound,
-    resetBombState, // New argument
-    resetMonsterState // New argument
-  );
+  const switchLanguage = useCallback(() => {
+    switchLanguageInState();
+    const newLanguage = gameState.language === 'english' ? 'arabic' : 'english';
+    generateAndSetTargetWords(newLanguage);
+    trackLanguageSwitch();
+    playSound('click');
 
-  // Use the visual effects hook
-  const {
-    showHint,
-    animateBlockMatch,
-    animateBlockReplacement,
-    animateBombExplosion,
-    animationProgress
-  } = useVisualEffects(gameState, setGameState);
+    const initialRow = generateRow(GRID_ROWS - 1, newLanguage, GRID_COLS);
+    setGameState(prevState => ({
+        ...prevState,
+        blocks: initialRow,
+        selectedBlocks: [],
+        score: 0,
+        foundWords: [],
+        gameStatus: 'playing',
+        level: 1,
+        rowCount: 1,
+        hintBlocks: [],
+      }));
 
-  // Use the achievements hook
-  const {
-    checkAchievements,
-    trackBombUsage,
-    trackLanguageSwitch,
-    trackPerfectGame,
-    checkLevelUp,
-    calculateBonusPoints,
-    getAchievements,
-    getUnlockedAchievements,
-    getLockedAchievements,
-    getAchievementProgress
-  } = useAchievements(gameState, setGameState);
+  }, [switchLanguageInState, gameState.language, generateAndSetTargetWords, trackLanguageSwitch, playSound, setGameState, GRID_ROWS, GRID_COLS]);
+
+  const clearSelection = useCallback(() => {
+    setGameState(prevState => ({
+      ...prevState,
+      selectedBlocks: [],
+      blocks: prevState.blocks.map(block => ({ ...block, isSelected: false }))
+    }));
+    playSound('click');
+  }, [setGameState, playSound]);
+
+  const togglePause = useCallback(() => {
+    setGameState(prevState => {
+      if (prevState.gameStatus === 'gameOver') return prevState;
+      return { ...prevState, gameStatus: prevState.gameStatus === 'playing' ? 'paused' : 'playing' };
+    });
+    playSound('click');
+  }, [setGameState, playSound]);
+
+  useEffect(() => {
+    // Initialize game on first load
+    generateAndSetTargetWords(gameState.language);
+  }, [generateAndSetTargetWords, gameState.language]);
+
 
   // This combined effect handles all monster-related state changes to prevent race conditions.
   useEffect(() => {
     setGameState(prev => {
-      // Guard condition to prevent running when not needed
       const monsterIsOnBoard = prev.blocks.some(b => b.isMonsterHere);
       if (!monsterActive && !monsterIsOnBoard && !blockToRemove) {
         return prev;
@@ -101,16 +107,12 @@ export const useGameLogic = () => {
       let newBlocks = prev.blocks;
       let changed = false;
 
-      // --- Step 1: Handle Block Destruction ---
       if (blockToRemove && newBlocks.some(b => b.id === blockToRemove)) {
-        newBlocks = newBlocks.filter(b => b.id !== blockToRemove); // Gravity applied only at the end of monster's run
+        newBlocks = newBlocks.filter(b => b.id !== blockToRemove);
         playSound('bomb_botton');
         changed = true;
       }
 
-      // --- Step 2: Sync Monster's Visual Position ---
-      // We check if the visual representation of the monster in the grid
-      // is out of sync with the definitive state from useMonsterLogic (monsterBlockId).
       let needsSync = false;
       for (const block of newBlocks) {
         const shouldBeMonster = block.id === monsterBlockId;
@@ -135,12 +137,11 @@ export const useGameLogic = () => {
 
       return { ...prev, blocks: newBlocks };
     });
-  }, [monsterActive, monsterBlockId, blockToRemove, applyGravity, playSound, setGameState]);
+  }, [monsterActive, monsterBlockId, blockToRemove, playSound, setGameState]);
 
   const prevMonsterActiveRef = useRef(false);
 
   useEffect(() => {
-    // Detect transition from monsterActive: true to false
     if (prevMonsterActiveRef.current === true && monsterActive === false) {
       setGameState(prev => ({
         ...prev,
@@ -150,10 +151,9 @@ export const useGameLogic = () => {
     prevMonsterActiveRef.current = monsterActive;
   }, [monsterActive, applyGravity, setGameState]);
 
-  // generateTargetWords is now imported from useGameState
 
   const selectBlock = useCallback((blockId: string) => {
-    if (monsterActive) return; // Disable when monster is active
+    if (monsterActive) return;
 
     setGameState(prevState => {
       const block = prevState.blocks.find(b => b.id === blockId);
@@ -181,27 +181,19 @@ export const useGameLogic = () => {
         const blocksToRemove = new Set(newSelectedBlocks.map(b => b.id));
         const remainingBlocks = updatedBlocksWithSelection.filter(b => !blocksToRemove.has(b.id));
 
-        // Apply gravity using the function from useBlocksLogic
         const finalBlocks = applyGravity(remainingBlocks).map(block => ({ ...block, isSelected: false }));
 
-        // Calculate bonus points
-        const bonusPoints = calculateBonusPoints(newSelectedBlocks.length, 5); // Assuming 5 seconds for now
+        const bonusPoints = calculateBonusPoints(newSelectedBlocks.length, 5);
 
-        // Add the found word using the function from useWordsLogic
         addFoundWord(wordCheckResult.newFoundWord, wordCheckResult.updatedTargetWords, wordCheckResult.points + bonusPoints);
 
-        // Animate the matched blocks
         animateBlockMatch(newSelectedBlocks.map(b => b.id));
 
-        // Play sound for match
         playSound('match');
 
-        // Check for achievements
         checkAchievements();
 
-        // Check for level up
         if (checkLevelUp()) {
-          // TODO: Add sound for level up
           // playSound('levelUp');
         }
 
@@ -218,51 +210,20 @@ export const useGameLogic = () => {
         selectedBlocks: newSelectedBlocks,
       };
     });
-  }, [applyGravity, checkSelectedWord, addFoundWord, animateBlockMatch, checkAchievements, checkLevelUp, calculateBonusPoints, setGameState, monsterActive]);
-
-  // --- Guarded actions for when monster is active ---
-  const guardedReplaceHalfLetters = useCallback(() => {
-    if (monsterActive) return;
-    replaceHalfLetters();
-  }, [monsterActive, replaceHalfLetters]);
-
-  const guardedActivateBomb = useCallback(() => {
-    if (monsterActive) return;
-    activateBomb();
-  }, [monsterActive, activateBomb]);
-
-  const guardedShowHint = useCallback(() => {
-    if (monsterActive) return;
-    showHint();
-  }, [monsterActive, showHint]);
-
-  const guardedSwitchLanguage = useCallback((lang: 'english' | 'arabic') => {
-    if (monsterActive) return;
-    handleSwitchLanguage(lang);
-  }, [monsterActive, handleSwitchLanguage]);
-
-
-  // Initialize game on first load
-  useEffect(() => {
-    resetGame();
-  }, [resetGame]);
-
-  useEffect(() => {
-    generateTargetWords();
-  }, [generateTargetWords]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [applyGravity, checkSelectedWord, addFoundWord, animateBlockMatch, checkAchievements, checkLevelUp, calculateBonusPoints, setGameState, monsterActive, playSound]);
 
   return {
     gameState,
     selectBlock,
     togglePause,
     resetGame,
-    switchLanguage: guardedSwitchLanguage,
+    switchLanguage,
     clearSelection,
     changeGameSpeed,
-    replaceHalfLetters: guardedReplaceHalfLetters,
-    activateBomb: guardedActivateBomb,
+    replaceHalfLetters,
+    activateBomb,
     isBombReady,
-    showHint: guardedShowHint,
+    showHint,
     toggleMute,
     isMuted,
     getAchievements,
@@ -274,8 +235,5 @@ export const useGameLogic = () => {
     GRID_COLS,
     activateMonster,
     isMonsterReady,
-    resetMonsterState,
-    monsterActive,
-    monsterBlockId,
   };
 };
