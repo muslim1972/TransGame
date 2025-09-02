@@ -116,12 +116,12 @@ function App() {
                   disabled={gameState.gameStatus === 'gameOver'}
                   data-pause-button="true"
                   className={`
-                    w-14 h-14 flex flex-col items-center justify-center p-1 rounded-xl font-semibold text-xs transition-all duration-200
+                    w-14 h-14 flex flex-col items-center justify-center p-1 rounded-xl font-semibold text-xs btn-3d
                     ${gameState.gameStatus === 'gameOver'
                       ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
                       : gameState.gameStatus === 'paused'
-                        ? 'bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white shadow-lg'
-                        : 'bg-yellow-500 hover:bg-yellow-600 dark:bg-yellow-600 dark:hover:bg-yellow-700 text-white shadow-lg'
+                        ? 'btn-3d-green text-white'
+                        : 'btn-3d-yellow text-white'
                     }
                   `}
                 >
@@ -137,7 +137,7 @@ function App() {
                 <button
                   onClick={resetGame}
                   data-reset-button="true"
-                  className="w-14 h-14 flex flex-col items-center justify-center p-1 bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 text-white rounded-xl font-semibold text-xs transition-all duration-200 shadow-lg"
+                  className="w-14 h-14 flex flex-col items-center justify-center p-1 rounded-xl font-semibold text-xs btn-3d bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 text-white"
                 >
                   <RotateCcw className="w-6 h-6" />
                   <span className="text-xs">
@@ -147,7 +147,7 @@ function App() {
 
                 <button
                   onClick={switchLanguage}
-                  className="w-14 h-14 flex flex-col items-center justify-center p-1 bg-indigo-500 hover:bg-indigo-600 dark:bg-indigo-600 dark:hover:bg-indigo-700 text-white rounded-xl font-semibold text-xs transition-all duration-200 shadow-lg"
+                  className="w-14 h-14 flex flex-col items-center justify-center p-1 rounded-xl font-semibold text-xs btn-3d btn-3d-purple text-white"
                 >
                   <Languages className="w-6 h-6" />
                   <span className="text-xs">
@@ -158,7 +158,7 @@ function App() {
                 <button
                   onClick={replaceHalfLetters}
                   data-replace-button="true"
-                  className="w-14 h-14 flex flex-col items-center justify-center p-1 rounded-xl font-semibold text-xs transition-all duration-200 bg-purple-500 hover:bg-purple-600 dark:bg-purple-600 dark:hover:bg-purple-700 text-white shadow-lg"
+                  className="w-14 h-14 flex flex-col items-center justify-center p-1 rounded-xl font-semibold text-xs btn-3d btn-3d-purple text-white"
                 >
                   <Shuffle className="w-6 h-6" />
                   <span className="text-xs">
@@ -170,7 +170,7 @@ function App() {
                   onClick={activateBomb}
                   disabled={!isBombReady}
                   data-bomb-button="true"
-                  className={`w-14 h-14 flex flex-col items-center justify-center p-1 rounded-xl font-semibold text-xs transition-all duration-200 shadow-lg
+                  className={`w-14 h-14 flex flex-col items-center justify-center p-1 rounded-xl font-semibold text-xs btn-3d
                     ${isBombReady ? 'bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 text-white' : 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'}
                   `}
                 >
@@ -183,14 +183,11 @@ function App() {
                 <button
                   onClick={activateMonster}
                   disabled={!isMonsterReady}
-                  className={`w-14 h-14 flex flex-col items-center justify-center p-1 rounded-xl font-semibold text-xs transition-all duration-200 shadow-lg z-40
-                    ${isMonsterReady ? 'bg-yellow-500 hover:bg-yellow-600 dark:bg-yellow-600 dark:hover:bg-yellow-700 text-white' : 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'}
+                  className={`w-14 h-14 flex flex-col items-center justify-center p-1 rounded-xl font-semibold text-xs z-40 btn-3d
+                    ${isMonsterReady ? 'btn-3d-yellow text-white' : 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'}
                   `}
                 >
-                  <span className="w-6 h-6">👹</span>
-                  <span className="text-xs">
-                    {gameState.language === 'ar' ? 'وحش' : 'Monster'}
-                  </span>
+                  <span className="w-8 h-8 flex items-center justify-center text-4xl">👾</span>
                 </button>
               </div>
             </div>
