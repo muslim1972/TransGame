@@ -21,9 +21,9 @@ export const LetterBlock: React.FC<LetterBlockProps> = ({
   return (
     <div
       className={`
-        w-12 h-12 border-2 rounded-lg cursor-pointer
+        w-12 h-12 cursor-pointer
         flex items-center justify-center font-bold text-4xl
-        absolute
+        absolute letter-block-3d
         ${block.isMonsterHere
           ? 'border-purple-700 bg-purple-500 text-white shadow-lg ring-2 ring-purple-400'
           : block.isReplacedRecently
@@ -31,7 +31,7 @@ export const LetterBlock: React.FC<LetterBlockProps> = ({
             : isHinting
               ? 'border-orange-400 bg-orange-100 dark:bg-orange-900/50 text-orange-800 dark:text-orange-200 shadow-lg ring-2 ring-orange-300 animate-pulse'
               : block.isSelected
-                ? 'border-yellow-400 bg-yellow-100 dark:bg-yellow-800/50 text-yellow-800 dark:text-yellow-200 shadow-lg ring-2 ring-yellow-300'
+                ? 'border-yellow-400 bg-yellow-100 dark:bg-yellow-800/50 text-yellow-800 dark:text-yellow-200 shadow-lg ring-2 ring-yellow-300 selected'
                 : 'border-green-400 bg-green-50 dark:bg-gray-700/50 text-green-800 dark:text-green-200 hover:border-green-500 hover:bg-green-100 dark:hover:bg-gray-600'
         }
         ${language === 'ar' ? 'font-arabic' : 'font-mono'}
