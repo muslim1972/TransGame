@@ -89,7 +89,7 @@ export const useBlocksLogic = (
           isReplacedRecently: false
         }))
       }));
-    }, 2000);
+    }, 300);
   }, [setGameState, playSound]);
 
   const activateBomb = useCallback(() => {
